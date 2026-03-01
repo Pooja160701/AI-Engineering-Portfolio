@@ -755,3 +755,258 @@ This is where it becomes real engineering.
 
 Ready to build the **framework core setup**?
 Say: **“Build the core”** and we go deep.
+LET’S BUILD IT PROPERLY 🔥
+Now we move from “folder structure” → to **real framework engineering**.
+
+This step will make your project look like something built inside a company.
+
+---
+
+# 🎯 STEP 4 — Build the Framework Core
+
+We’ll implement:
+
+1. Environment configuration system
+2. Centralized logging
+3. Playwright setup via `conftest.py`
+4. API client abstraction layer
+5. Test tagging strategy
+
+This is what separates amateurs from professionals.
+
+---
+
+# ✅ 1️⃣ CONFIG SYSTEM (Environment Management)
+
+Why this matters:
+
+Recruiters LOVE when they see environment separation (dev / staging / prod ready).
+
+---
+
+## 📄 `utils/config.py`
+
+Put this inside:
+
+```
+automation/utils/config.py
+```
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    BASE_URL = os.getenv("BASE_URL", "https://www.saucedemo.com")
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://fakestoreapi.com")
+    HEADLESS = os.getenv("HEADLESS", "true").lower() == "true"
+    TIMEOUT = int(os.getenv("TIMEOUT", 5000))
+```
+
+---
+
+## 📄 Create `.env` file (Root of project)
+
+Inside:
+
+```
+ecommerce-test-automation-framework
+```
+
+Create `.env`
+
+```
+BASE_URL=https://www.saucedemo.com
+API_BASE_URL=https://fakestoreapi.com
+HEADLESS=true
+TIMEOUT=5000
+```
+
+Add `.env` to `.gitignore`.
+
+---
+
+# ✅ 2️⃣ CENTRALIZED LOGGER
+
+Recruiters love logging awareness.
+
+## 📄 `utils/logger.py`
+
+```python
+import logging
+import os
+
+def get_logger(name: str):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    if not logger.handlers:
+        console_handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    return logger
+```
+
+Now you can import logger anywhere.
+
+---
+
+# ✅ 3️⃣ PLAYWRIGHT SETUP (conftest.py)
+
+This is the heart of UI testing.
+
+## 📄 `automation/conftest.py`
+
+```python
+import pytest
+from playwright.sync_api import sync_playwright
+from utils.config import Config
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+@pytest.fixture(scope="session")
+def browser():
+    logger.info("Launching browser...")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=Config.HEADLESS)
+        yield browser
+        browser.close()
+        logger.info("Browser closed.")
+
+@pytest.fixture
+def page(browser):
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(Config.TIMEOUT)
+    yield page
+    context.close()
+```
+
+Now your UI tests automatically get a `page` object.
+
+Clean.
+Professional.
+Reusable.
+
+---
+
+# ✅ 4️⃣ API CLIENT ABSTRACTION
+
+Real QA engineers don’t write raw requests everywhere.
+
+We abstract it.
+
+## 📄 `automation/api/client/api_client.py`
+
+```python
+import requests
+from utils.config import Config
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+class APIClient:
+
+    def __init__(self):
+        self.base_url = Config.API_BASE_URL
+
+    def get(self, endpoint: str):
+        url = f"{self.base_url}{endpoint}"
+        logger.info(f"GET request to {url}")
+        response = requests.get(url)
+        return response
+
+    def post(self, endpoint: str, payload: dict):
+        url = f"{self.base_url}{endpoint}"
+        logger.info(f"POST request to {url}")
+        response = requests.post(url, json=payload)
+        return response
+```
+
+Now your tests will look clean like:
+
+```python
+client = APIClient()
+response = client.get("/products")
+```
+
+Recruiters LOVE this abstraction.
+
+---
+
+# ✅ 5️⃣ TEST TAGGING STRATEGY
+
+This is advanced.
+
+Add this to `pytest.ini` in root:
+
+## 📄 `pytest.ini`
+
+```
+[pytest]
+markers =
+    smoke: Critical smoke tests
+    regression: Full regression tests
+    api: API test cases
+    ui: UI test cases
+    performance: Performance tests
+```
+
+Now you can run:
+
+```bash
+pytest -m smoke
+pytest -m api
+pytest -m regression
+```
+
+This looks enterprise-ready.
+
+---
+
+# 🎯 Commit This
+
+```bash
+git add .
+git commit -m "Implemented core framework: config management, logging, playwright fixtures, API abstraction and test tagging"
+git push
+```
+
+---
+
+# 🏆 What You Now Have
+
+You officially built:
+
+✔ Environment configuration system
+✔ Structured logging
+✔ Reusable Playwright fixtures
+✔ API abstraction client
+✔ Test tagging strategy
+
+This already looks better than 80% of QA GitHub projects.
+
+---
+
+# 🚀 NEXT STEP
+
+Now we build:
+
+1. Page Object Model base class
+2. Login page object
+3. First UI smoke test
+4. First API test
+
+This is where your repo starts looking alive.
+
+Say:
+**“Build UI layer”**
+or
+**“Build API layer first”**
