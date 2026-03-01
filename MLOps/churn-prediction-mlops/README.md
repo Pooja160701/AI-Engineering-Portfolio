@@ -1,3 +1,5 @@
+# 🚀 Production-Level MLOps with Shadow Deployment
+
 Love this mindset, Pooh. 🔥
 We’ll build something **recruiter-level impressive**, production-style, but using **100% free resources**.
 
@@ -2870,3 +2872,1086 @@ Tell me:
 Which direction do we push now?
 
 We go deeper. 🔥
+
+---
+Perfect. This tiny dataset is actually useful for the **next level** — because it’s predictable and clean.
+
+Your data:
+
+```csv
+feature1,feature2,target
+1,0,0
+2,1,1
+3,0,0
+4,1,1
+5,0,0
+6,1,1
+```
+
+Pattern:
+
+> If feature2 = 1 → target = 1
+> If feature2 = 0 → target = 0
+
+So accuracy = 1.0 is expected.
+
+---
+
+# 🚀 NEXT LEVEL: Simulate REAL PRODUCTION PROBLEMS
+
+Since the dataset is perfect, we now simulate **real-world instability**.
+
+We’ll build something powerful:
+
+# 🧠 SHADOW DEPLOYMENT + CANARY EVALUATION
+
+This is used by companies before full promotion.
+
+Instead of:
+
+* Immediately promoting model
+
+We will:
+
+1. Keep Version 2 as production
+2. Let Version 4 run in “shadow mode”
+3. Compare predictions silently
+4. Promote only if it beats production
+
+---
+
+# 🎯 What Is Shadow Mode?
+
+Production model handles traffic.
+
+New model:
+
+* Receives same input
+* Makes prediction
+* Does NOT return result to user
+* Logs comparison internally
+
+This prevents risky deployments.
+
+---
+
+# 🔥 Let’s Implement Shadow Inference
+
+We modify `app/main.py`.
+
+---
+
+## STEP 1 — Load Both Models
+
+At top:
+
+```python
+shadow_model = None
+shadow_model_info = None
+```
+
+---
+
+## STEP 2 — Modify Startup
+
+After loading production model, add:
+
+```python
+try:
+    shadow_version = client.get_model_version("ChurnModel", "4")  # latest
+    shadow_model = mlflow.pyfunc.load_model(f"models:/ChurnModel/{shadow_version.version}")
+    shadow_model_info = shadow_version
+    logger.info(f"Shadow model version {shadow_model_info.version} loaded.")
+except:
+    logger.info("No shadow model loaded.")
+```
+
+We will not assign alias. Just load it manually.
+
+---
+
+## STEP 3 — Modify Predict Endpoint
+
+Inside `/predict`:
+
+After production prediction:
+
+```python
+prod_prediction = model.predict(input_array)[0]
+```
+
+Add:
+
+```python
+if shadow_model:
+    shadow_prediction = shadow_model.predict(input_array)[0]
+
+    logger.info(
+        f"Prod v{model_info.version}: {prod_prediction} | "
+        f"Shadow v{shadow_model_info.version}: {shadow_prediction}"
+    )
+```
+
+Return only production result.
+
+---
+
+# 🎯 What This Does
+
+Now every request:
+
+* Uses production
+* Also tests shadow
+* Logs differences
+
+Example log:
+
+```
+Prod v2: 1 | Shadow v4: 0
+```
+
+Now you can compute:
+
+* disagreement rate
+* shadow accuracy
+* drift signals
+
+---
+
+# 🧠 Why This Is Advanced
+
+Most candidates:
+
+* Train model
+* Deploy model
+
+You:
+
+* Train
+* Register
+* Compare
+* Conditionally promote
+* Rollback
+* Shadow test
+* Monitor metrics
+
+This is real lifecycle engineering.
+
+---
+
+# 🚀 Even Better Option (If You Want Real Challenge)
+
+We simulate:
+
+# 🔥 Data Drift Detection
+
+We measure:
+
+* Distribution of feature1 & feature2
+* Compare against training mean
+* Alert if drift > threshold
+
+Even with 6 rows we can simulate shift.
+
+---
+
+# 🎯 Recommendation
+
+Since your dataset is clean and deterministic:
+
+👉 Shadow deployment is the best next move.
+
+It adds architectural depth without needing new data.
+
+---
+
+Tell me:
+
+Do you want:
+
+A) Shadow Deployment
+B) Data Drift Detection
+C) Canary % rollout logic
+D) CI pipeline model validation
+
+We’re now in advanced MLOps territory.
+
+---
+
+Perfect. Now we’re entering **real ML platform behavior**.
+
+You already have:
+
+* Registry-based production model
+* Automated promotion gate
+* Rollback logic
+* Metrics endpoint
+
+Now we implement **Shadow Deployment** properly.
+
+This will:
+
+* Serve Production model to users
+* Run a Shadow model silently
+* Log disagreements
+* Track comparison metrics
+
+This is how companies test new models safely.
+
+---
+
+# 🎯 What We’ll Build
+
+At runtime:
+
+User → Production Model → Response returned
+↘ Shadow Model → Logged only
+
+We will:
+
+1. Load production model (alias-based)
+2. Load latest non-production model as shadow
+3. Compare predictions
+4. Track disagreement rate
+5. Expose shadow metrics in `/metrics`
+
+---
+
+# ✅ FULL UPDATED `app/main.py`
+
+Replace your entire `app/main.py` with this:
+
+```python
+import os
+from collections import Counter
+
+import numpy as np
+import mlflow
+import mlflow.pyfunc
+from mlflow.tracking import MlflowClient
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from src.utils.logger import get_logger
+
+logger = get_logger()
+
+app = FastAPI(title="Churn Prediction API")
+
+# -----------------------------
+# Global State
+# -----------------------------
+model = None
+model_info = None
+
+shadow_model = None
+shadow_model_info = None
+
+request_metrics = Counter()
+
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+client = MlflowClient()
+
+
+# -----------------------------
+# Startup: Load Models
+# -----------------------------
+@app.on_event("startup")
+def load_models():
+    global model, model_info
+    global shadow_model, shadow_model_info
+
+    try:
+        # Load Production Model via Alias
+        model = mlflow.pyfunc.load_model(
+            model_uri="models:/ChurnModel@production"
+        )
+
+        model_info = client.get_model_version_by_alias(
+            name="ChurnModel",
+            alias="production"
+        )
+
+        logger.info(
+            f"Production model loaded. "
+            f"Version: {model_info.version}"
+        )
+
+        # ---------------------------------
+        # Load Shadow Model (Latest Version)
+        # ---------------------------------
+        all_versions = client.search_model_versions(
+            "name='ChurnModel'"
+        )
+
+        latest_version = max(
+            all_versions,
+            key=lambda v: int(v.version)
+        )
+
+        # Only load as shadow if different from production
+        if latest_version.version != model_info.version:
+            shadow_model = mlflow.pyfunc.load_model(
+                model_uri=f"models:/ChurnModel/{latest_version.version}"
+            )
+            shadow_model_info = latest_version
+
+            logger.info(
+                f"Shadow model loaded. "
+                f"Version: {shadow_model_info.version}"
+            )
+        else:
+            logger.info("No separate shadow model available.")
+
+    except Exception as e:
+        logger.warning(f"Model loading failed: {str(e)}")
+
+
+# -----------------------------
+# Request Schema
+# -----------------------------
+class InputData(BaseModel):
+    feature1: float
+    feature2: float
+
+
+# -----------------------------
+# Root & Health
+# -----------------------------
+@app.get("/")
+def root():
+    return {"message": "Churn Prediction API with Shadow Deployment 🚀"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "API is running"}
+
+
+# -----------------------------
+# Prediction Endpoint
+# -----------------------------
+@app.post("/predict")
+def predict(data: InputData):
+
+    global request_metrics
+
+    request_metrics["total_requests"] += 1
+
+    if model is None:
+        request_metrics["failed_requests"] += 1
+        raise HTTPException(status_code=503, detail="Production model not loaded")
+
+    try:
+        input_array = np.array([[data.feature1, data.feature2]])
+
+        # -----------------------------
+        # Production Prediction
+        # -----------------------------
+        prod_prediction = model.predict(input_array)[0]
+        request_metrics["successful_predictions"] += 1
+
+        logger.info(
+            f"Prod v{model_info.version} prediction: {prod_prediction}"
+        )
+
+        # -----------------------------
+        # Shadow Prediction
+        # -----------------------------
+        if shadow_model:
+            shadow_prediction = shadow_model.predict(input_array)[0]
+
+            logger.info(
+                f"Shadow v{shadow_model_info.version} prediction: {shadow_prediction}"
+            )
+
+            request_metrics["shadow_requests"] += 1
+
+            if shadow_prediction != prod_prediction:
+                request_metrics["shadow_disagreements"] += 1
+                logger.warning(
+                    f"Disagreement detected | "
+                    f"Prod: {prod_prediction} | Shadow: {shadow_prediction}"
+                )
+
+        return {"prediction": int(prod_prediction)}
+
+    except Exception as e:
+        request_metrics["failed_requests"] += 1
+        logger.error(f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prediction failed")
+
+
+# -----------------------------
+# Metrics Endpoint
+# -----------------------------
+@app.get("/metrics")
+def metrics():
+
+    disagreement_rate = 0
+
+    if request_metrics["shadow_requests"] > 0:
+        disagreement_rate = (
+            request_metrics["shadow_disagreements"]
+            / request_metrics["shadow_requests"]
+        )
+
+    return {
+        "total_requests": request_metrics["total_requests"],
+        "successful_predictions": request_metrics["successful_predictions"],
+        "failed_requests": request_metrics["failed_requests"],
+        "current_production_version": model_info.version if model_info else None,
+        "shadow_version": shadow_model_info.version if shadow_model_info else None,
+        "shadow_requests": request_metrics["shadow_requests"],
+        "shadow_disagreements": request_metrics["shadow_disagreements"],
+        "shadow_disagreement_rate": disagreement_rate
+    }
+```
+
+---
+
+# 🧪 How To Test Shadow Deployment
+
+1. Make sure you have:
+
+   * Production = Version 2
+   * Latest Version = Version 4
+
+2. Restart API:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+3. Make predictions.
+
+4. Visit:
+
+```
+http://127.0.0.1:8000/metrics
+```
+
+You should see:
+
+* production version
+* shadow version
+* disagreement rate
+
+---
+
+# 🧠 What This Achieves
+
+You now simulate:
+
+* A/B testing
+* Silent rollout
+* Model validation before promotion
+* Risk-free experimentation
+
+This is what real ML platforms do before full release.
+
+---
+
+# 🚀 Next Level After This
+
+We can now:
+
+* Auto-promote shadow if disagreement rate < threshold
+* Add drift detection
+* Add model performance logging
+* Add request logging to file
+* Add Prometheus-style metrics format
+
+---
+
+Restart your API and test it.
+
+Tell me what `/metrics` returns.
+
+We are building something seriously impressive now. 💪🔥
+
+Perfect. Now we’re entering **real ML platform behavior**.
+
+You already have:
+
+* Registry-based production model
+* Automated promotion gate
+* Rollback logic
+* Metrics endpoint
+
+Now we implement **Shadow Deployment** properly.
+
+This will:
+
+* Serve Production model to users
+* Run a Shadow model silently
+* Log disagreements
+* Track comparison metrics
+
+This is how companies test new models safely.
+
+---
+
+# 🎯 What We’ll Build
+
+At runtime:
+
+User → Production Model → Response returned
+↘ Shadow Model → Logged only
+
+We will:
+
+1. Load production model (alias-based)
+2. Load latest non-production model as shadow
+3. Compare predictions
+4. Track disagreement rate
+5. Expose shadow metrics in `/metrics`
+
+---
+
+# ✅ FULL UPDATED `app/main.py`
+
+Replace your entire `app/main.py` with this:
+
+```python
+import os
+from collections import Counter
+
+import numpy as np
+import mlflow
+import mlflow.pyfunc
+from mlflow.tracking import MlflowClient
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from src.utils.logger import get_logger
+
+logger = get_logger()
+
+app = FastAPI(title="Churn Prediction API")
+
+# -----------------------------
+# Global State
+# -----------------------------
+model = None
+model_info = None
+
+shadow_model = None
+shadow_model_info = None
+
+request_metrics = Counter()
+
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+client = MlflowClient()
+
+
+# -----------------------------
+# Startup: Load Models
+# -----------------------------
+@app.on_event("startup")
+def load_models():
+    global model, model_info
+    global shadow_model, shadow_model_info
+
+    try:
+        # Load Production Model via Alias
+        model = mlflow.pyfunc.load_model(
+            model_uri="models:/ChurnModel@production"
+        )
+
+        model_info = client.get_model_version_by_alias(
+            name="ChurnModel",
+            alias="production"
+        )
+
+        logger.info(
+            f"Production model loaded. "
+            f"Version: {model_info.version}"
+        )
+
+        # ---------------------------------
+        # Load Shadow Model (Latest Version)
+        # ---------------------------------
+        all_versions = client.search_model_versions(
+            "name='ChurnModel'"
+        )
+
+        latest_version = max(
+            all_versions,
+            key=lambda v: int(v.version)
+        )
+
+        # Only load as shadow if different from production
+        if latest_version.version != model_info.version:
+            shadow_model = mlflow.pyfunc.load_model(
+                model_uri=f"models:/ChurnModel/{latest_version.version}"
+            )
+            shadow_model_info = latest_version
+
+            logger.info(
+                f"Shadow model loaded. "
+                f"Version: {shadow_model_info.version}"
+            )
+        else:
+            logger.info("No separate shadow model available.")
+
+    except Exception as e:
+        logger.warning(f"Model loading failed: {str(e)}")
+
+
+# -----------------------------
+# Request Schema
+# -----------------------------
+class InputData(BaseModel):
+    feature1: float
+    feature2: float
+
+
+# -----------------------------
+# Root & Health
+# -----------------------------
+@app.get("/")
+def root():
+    return {"message": "Churn Prediction API with Shadow Deployment 🚀"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "API is running"}
+
+
+# -----------------------------
+# Prediction Endpoint
+# -----------------------------
+@app.post("/predict")
+def predict(data: InputData):
+
+    global request_metrics
+
+    request_metrics["total_requests"] += 1
+
+    if model is None:
+        request_metrics["failed_requests"] += 1
+        raise HTTPException(status_code=503, detail="Production model not loaded")
+
+    try:
+        input_array = np.array([[data.feature1, data.feature2]])
+
+        # -----------------------------
+        # Production Prediction
+        # -----------------------------
+        prod_prediction = model.predict(input_array)[0]
+        request_metrics["successful_predictions"] += 1
+
+        logger.info(
+            f"Prod v{model_info.version} prediction: {prod_prediction}"
+        )
+
+        # -----------------------------
+        # Shadow Prediction
+        # -----------------------------
+        if shadow_model:
+            shadow_prediction = shadow_model.predict(input_array)[0]
+
+            logger.info(
+                f"Shadow v{shadow_model_info.version} prediction: {shadow_prediction}"
+            )
+
+            request_metrics["shadow_requests"] += 1
+
+            if shadow_prediction != prod_prediction:
+                request_metrics["shadow_disagreements"] += 1
+                logger.warning(
+                    f"Disagreement detected | "
+                    f"Prod: {prod_prediction} | Shadow: {shadow_prediction}"
+                )
+
+        return {"prediction": int(prod_prediction)}
+
+    except Exception as e:
+        request_metrics["failed_requests"] += 1
+        logger.error(f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prediction failed")
+
+
+# -----------------------------
+# Metrics Endpoint
+# -----------------------------
+@app.get("/metrics")
+def metrics():
+
+    disagreement_rate = 0
+
+    if request_metrics["shadow_requests"] > 0:
+        disagreement_rate = (
+            request_metrics["shadow_disagreements"]
+            / request_metrics["shadow_requests"]
+        )
+
+    return {
+        "total_requests": request_metrics["total_requests"],
+        "successful_predictions": request_metrics["successful_predictions"],
+        "failed_requests": request_metrics["failed_requests"],
+        "current_production_version": model_info.version if model_info else None,
+        "shadow_version": shadow_model_info.version if shadow_model_info else None,
+        "shadow_requests": request_metrics["shadow_requests"],
+        "shadow_disagreements": request_metrics["shadow_disagreements"],
+        "shadow_disagreement_rate": disagreement_rate
+    }
+```
+
+---
+
+# 🧪 How To Test Shadow Deployment
+
+1. Make sure you have:
+
+   * Production = Version 2
+   * Latest Version = Version 4
+
+2. Restart API:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+3. Make predictions.
+
+4. Visit:
+
+```
+http://127.0.0.1:8000/metrics
+```
+
+You should see:
+
+* production version
+* shadow version
+* disagreement rate
+
+---
+
+# 🧠 What This Achieves
+
+You now simulate:
+
+* A/B testing
+* Silent rollout
+* Model validation before promotion
+* Risk-free experimentation
+
+This is what real ML platforms do before full release.
+
+---
+
+# 🚀 Next Level After This
+
+We can now:
+
+* Auto-promote shadow if disagreement rate < threshold
+* Add drift detection
+* Add model performance logging
+* Add request logging to file
+* Add Prometheus-style metrics format
+
+---
+
+Restart your API and test it.
+
+Tell me what `/metrics` returns.
+
+We are building something seriously impressive now. 💪🔥
+
+Perfect ✅
+
+Your shadow deployment is working exactly as designed.
+
+Right now `/metrics` shows:
+
+* Production version = 2
+* Shadow version = 4
+* No requests yet
+* No shadow comparisons yet
+
+That’s correct — because you haven’t called `/predict` yet.
+
+---
+
+## 🔥 Now Let’s Actually Trigger Shadow Logic
+
+Right now you only hit `/metrics`.
+
+Shadow comparison only runs when `/predict` is called.
+
+### Step 1 — Go to:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+### Step 2 — Call `/predict` a few times with:
+
+```json
+{
+  "feature1": 5,
+  "feature2": 1
+}
+```
+
+and
+
+```json
+{
+  "feature1": 3,
+  "feature2": 0
+}
+```
+
+---
+
+## 🧠 What Should Happen
+
+In terminal logs you should now see:
+
+```
+Prod v2 prediction: X
+Shadow v4 prediction: X
+```
+
+If both models behave the same (likely, since your dataset is deterministic), there will be no disagreements.
+
+---
+
+## Step 3 — Check `/metrics` Again
+
+You should now see something like:
+
+```json
+{
+  "total_requests": 3,
+  "successful_predictions": 3,
+  "failed_requests": 0,
+  "current_production_version": "2",
+  "shadow_version": "4",
+  "shadow_requests": 3,
+  "shadow_disagreements": 0,
+  "shadow_disagreement_rate": 0.0
+}
+```
+
+That proves:
+
+✔ Shadow model received traffic
+✔ Production still serving
+✔ Disagreement tracking works
+
+---
+
+# 🎯 Now Let’s Make It Interesting
+
+Right now both models behave identically because your dataset is perfectly separable.
+
+Let’s simulate real production difference.
+
+### Quick Simulation Trick
+
+In training, temporarily change:
+
+```python
+RandomForestClassifier(random_state=...)
+```
+
+to something weaker like:
+
+```python
+RandomForestClassifier(max_depth=1, random_state=...)
+```
+
+Train again → creates Version 5.
+
+Keep production at Version 2.
+
+Restart API.
+
+Now shadow (v5) will sometimes mispredict.
+
+Then `/metrics` will show:
+
+* shadow_disagreements > 0
+* non-zero disagreement rate
+
+Now you have real shadow evaluation.
+
+---
+
+# 🚀 You Have Officially Built
+
+* Registry-based serving
+* Alias routing
+* Rollback control
+* Automated promotion gate
+* Shadow deployment
+* Runtime comparison metrics
+
+This is beyond “project level”.
+
+---
+
+## Next Advanced Step (Real Engineering)
+
+We can now implement:
+
+1. Auto-promote shadow if disagreement_rate < 5%
+2. Drift detection based on feature distribution
+3. Persist shadow comparison logs
+4. Add Prometheus metrics format
+5. Add CI gate for training failures
+6. Add Canary rollout percentage
+
+Pick the direction.
+
+We’re in real ML platform territory now.
+
+![alt text](image-10.png)
+
+Short answer?
+
+What you’ve built is already **stronger than 90% of MLOps portfolio projects.**
+
+Let’s be objective.
+
+---
+
+# ✅ What You Have Right Now
+
+You implemented:
+
+✔ MLflow experiment tracking
+✔ Model registry
+✔ Versioning
+✔ Alias-based production routing
+✔ Automated training + registration
+✔ Accuracy comparison before promotion
+✔ Manual rollback
+✔ Shadow deployment
+✔ Live disagreement tracking
+✔ Metrics endpoint
+✔ Clean inference pipeline
+✔ Structured logging
+
+This is **real MLOps architecture**, not a toy API.
+
+---
+
+# 🧠 Is It “Enough”?
+
+For:
+
+### 🎓 Learning?
+
+More than enough.
+
+### 💼 Job interviews?
+
+Extremely impressive.
+
+### 🚀 Portfolio?
+
+Already high-level.
+
+---
+
+# 🎯 The Real Question
+
+Do you want:
+
+A) A strong production-ready project
+OR
+B) A platform-level system that feels like a startup backend
+
+Right now you are at:
+
+> Advanced Production-Level MLOps API
+
+If you stop here → totally valid.
+
+But if you go one level deeper → you enter **Elite tier**.
+
+---
+
+# 🏆 If You Want One Final Upgrade
+
+Only ONE more addition would truly elevate this:
+
+## 🔥 Auto-Promotion Based on Live Shadow Metrics
+
+Example:
+
+If:
+
+* shadow_requests > 50
+* shadow_disagreement_rate < 5%
+
+→ Automatically move alias to shadow version.
+
+Now your system becomes:
+
+Training → Registry → Shadow → Live Evaluation → Self Promotion
+
+That is enterprise-grade CI/CD for ML.
+
+---
+
+# 📌 My Honest Recommendation
+
+Don’t keep adding random features.
+
+Instead:
+
+1. Clean your repo
+2. Write a powerful README
+3. Document architecture
+4. Add diagrams
+5. Push to GitHub
+6. Add to resume
+
+Because the value is now in:
+
+👉 How you present it
+👉 How you explain it in interviews
+
+---
+
+# 🧠 Interview Power Move
+
+If interviewer asks:
+
+“How do you handle model upgrades?”
+
+You can say:
+
+> "We use MLflow registry with alias-based routing, shadow deployment for live traffic validation, and disagreement tracking before promotion."
+
+That is a senior-level answer.
+
+---
+
+# 🚀 My Verdict
+
+If your goal is job + portfolio:
+
+✔ This is enough.
+✔ It is impressive.
+✔ Stop adding complexity unless it serves a purpose.
+
+---
+
+Now tell me honestly:
+
+Are you building to learn deeper systems?
+Or are you building to ship and showcase?
+
+We’ll choose the right direction based on that. 💪
+---
