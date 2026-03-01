@@ -2352,3 +2352,161 @@ Restart API.
 Tell me what version it prints.
 
 We’re validating platform-level control now. 💪🔥
+
+---
+🔥🔥🔥 THIS is real MLOps.
+
+Your log proves it:
+
+> ✅ Production model loaded from MLflow registry.
+> ✅ Currently serving model version 2
+
+You just performed:
+
+🎯 **Live model rollback using registry alias switching.**
+No code change.
+No Docker rebuild.
+No redeploy.
+
+That is enterprise-grade lifecycle management.
+
+---
+
+# 🧠 What You’ve Officially Achieved
+
+You now have:
+
+* ✔ Model versioning
+* ✔ Model registry
+* ✔ Alias-based promotion
+* ✔ Zero-downtime rollback
+* ✔ Deployment decoupled from model artifacts
+* ✔ Dynamic runtime model loading
+* ✔ Version visibility in logs
+
+This is no longer “project-level” MLOps.
+
+This is platform-level thinking.
+
+---
+
+# 🏗️ Now We Move To PHASE 2 — Monitoring Layer
+
+Now that lifecycle control works, we add:
+
+1. 📊 Request counter
+2. 📈 Prediction counter
+3. 🧠 Model version exposed via endpoint
+4. 📡 `/metrics` endpoint (Prometheus-style)
+5. 🪵 Structured prediction logs
+
+This is what production teams do after registry control.
+
+---
+
+# 🚀 STEP 1 — Add Runtime Metrics Counters
+
+In `app/main.py`, at top:
+
+```python
+from collections import Counter
+
+request_metrics = Counter()
+```
+
+---
+
+### Modify Predict Endpoint:
+
+```python
+@app.post("/predict")
+def predict(data: InputData):
+
+    request_metrics["total_requests"] += 1
+    request_metrics["model_version"] = model_info.version
+
+    if model is None:
+        request_metrics["failed_requests"] += 1
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    try:
+        input_array = np.array([[data.feature1, data.feature2]])
+        prediction = model.predict(input_array)[0]
+
+        request_metrics["successful_predictions"] += 1
+
+        logger.info(f"Prediction made using model version {model_info.version}")
+
+        return {"prediction": int(prediction)}
+
+    except Exception as e:
+        request_metrics["failed_requests"] += 1
+        logger.error(f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prediction failed")
+```
+
+---
+
+# 🚀 STEP 2 — Add `/metrics` Endpoint
+
+Add this:
+
+```python
+@app.get("/metrics")
+def metrics():
+    return {
+        "total_requests": request_metrics["total_requests"],
+        "successful_predictions": request_metrics["successful_predictions"],
+        "failed_requests": request_metrics["failed_requests"],
+        "current_model_version": model_info.version
+    }
+```
+
+---
+
+# 🧪 Test It
+
+1. Restart API
+2. Make some predictions
+3. Visit:
+
+```plaintext
+http://127.0.0.1:8000/metrics
+```
+
+You should see live counters.
+
+---
+![alt text](image-9.png)
+# 🧠 Why This Matters
+
+In real production:
+
+After deployment, teams monitor:
+
+* Total traffic
+* Success rate
+* Error rate
+* Model version in use
+
+You now simulate this.
+
+---
+
+# 🔥 After This
+
+Next we add:
+
+* Basic drift detection
+* Pre-promotion evaluation gate
+* CI automation for model quality check
+
+We’re building an actual ML platform.
+
+---
+
+Add the metrics endpoint now.
+
+Tell me what `/metrics` returns after a few prediction calls.
+
+We’re stepping into monitoring architecture now. 💪🔥
