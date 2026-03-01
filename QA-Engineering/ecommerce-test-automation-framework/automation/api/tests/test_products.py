@@ -1,7 +1,20 @@
 import pytest
+import os
+import pytest
 from api.client.api_client import APIClient
 from jsonschema import validate
 
+IS_CI = os.getenv("CI") == "true"
+
+@pytest.mark.api
+@pytest.mark.smoke
+@pytest.mark.skipif(IS_CI, reason="Skipping external API test in CI")
+def test_get_all_products():
+    client = APIClient()
+    response = client.get("/products")
+
+    assert response.status_code == 200
+    
 @pytest.mark.api
 @pytest.mark.smoke
 def test_get_all_products():
