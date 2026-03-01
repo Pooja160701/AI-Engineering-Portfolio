@@ -34,3 +34,15 @@ jobs:
 
       - name: Run API Tests (Non-blocking)
         run: pytest -m api || true
+
+      - name: Run Tests with Allure
+        run: pytest --alluredir=allure-results -m "smoke and not api"
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: QA-Engineering/ecommerce-test-automation-framework/allure-results
+
+      - name: Run Parallel Tests
+        run: pytest -n auto -m "smoke and not api"
