@@ -1992,3 +1992,206 @@ Choose next direction:
 Pick one.
 
 We’re now building systems, not projects. 💪🔥
+
+---
+I like that answer. 😌🔥
+Now we stop “building features” and start building a **mini ML platform**.
+
+We’ll go step-by-step, like a real production team.
+
+No rush. No shortcuts.
+
+---
+
+# 🏗️ MASTER PLAN — MLOps v2 (Professional Track)
+
+We will implement this in order:
+
+### Phase 1 — 🔁 Model Lifecycle Simulation
+
+1. Simulate bad model release
+2. Promote to production
+3. Detect issue
+4. Rollback to previous version
+
+---
+
+### Phase 2 — 📊 Monitoring Layer
+
+1. Add request logging
+2. Add prediction metrics counter
+3. Add `/metrics` endpoint
+4. Track model version being used
+
+---
+
+### Phase 3 — 🛡 Data Validation Layer
+
+1. Validate input schema
+2. Validate feature distribution
+3. Add simple data drift detection logic
+
+---
+
+### Phase 4 — 🧪 Pre-Promotion Evaluation
+
+1. Compare model versions
+2. Automatically evaluate before promotion
+3. Only promote if metric improves
+
+---
+
+### Phase 5 — 🔵🟢 Blue/Green Simulation
+
+1. Run two model versions simultaneously
+2. Route traffic by config
+3. Switch production dynamically
+
+---
+
+We go in order.
+
+---
+
+# 🚀 PHASE 1 — PRODUCTION FAILURE SIMULATION
+
+This is the most important interview skill.
+
+---
+
+## 🎯 Scenario
+
+We have:
+
+* Version 2 → Stable model
+* Version 3 → Recently promoted to production
+
+Now assume:
+
+> Version 3 has bad performance in production.
+
+We need rollback.
+
+---
+
+# STEP 1 — Verify Current Production Version
+
+In MLflow:
+
+Go to:
+
+ChurnModel → Version 3
+
+Confirm:
+
+```plaintext
+Alias: production
+```
+
+---
+
+# STEP 2 — Confirm API Uses That Version
+
+Add this small logging inside predict:
+
+In `app/main.py`, modify:
+
+```python
+from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+```
+
+Then inside startup:
+
+```python
+model_info = client.get_model_version_by_alias(
+    name="ChurnModel",
+    alias="production"
+)
+
+logger.info(f"Currently serving model version: {model_info.version}")
+```
+
+Restart API.
+
+You should now see:
+
+```
+Currently serving model version: 3
+```
+
+This proves your service knows what it’s serving.
+![alt text](image-6.png)
+---
+
+# STEP 3 — Simulate Production Issue
+
+Let’s simulate “bad model” behavior.
+
+Temporarily modify Version 3 training to:
+
+* Random predictions
+* Or artificially low performance
+
+Re-train.
+Register as Version 4.
+Promote to production.
+
+Now your system is serving bad model.
+
+---
+
+# STEP 4 — Perform Rollback
+
+In MLflow:
+
+1. Remove alias `production` from Version 4
+2. Assign alias `production` to Version 2
+
+Restart API.
+
+You should now see:
+
+```
+Currently serving model version: 2
+```
+
+Zero code change.
+Zero redeploy.
+
+That is real-world rollback.
+
+---
+
+# 🧠 Why This Matters
+
+In real companies:
+
+You NEVER:
+
+* Edit code to rollback model
+* Rebuild Docker image
+* Redeploy service
+
+You only:
+
+* Reassign registry alias
+
+That’s enterprise MLOps.
+
+---
+
+# 🔥 Now Let’s Do It Live
+
+First:
+
+Add the model version logging snippet I gave you.
+
+Restart your API.
+
+Tell me what version number it prints.
+
+We verify before we simulate failure.
+
+One step at a time. 💪

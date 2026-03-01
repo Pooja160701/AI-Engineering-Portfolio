@@ -6,8 +6,10 @@ from fastapi import HTTPException
 from src.utils.logger import get_logger
 import os
 import mlflow.pyfunc
+from mlflow.tracking import MlflowClient
 
 logger = get_logger()
+client = MlflowClient()
 
 app = FastAPI(title="Churn Prediction API")
 
@@ -28,6 +30,13 @@ def load_model():
             model_uri="models:/ChurnModel@production"
         )
         logger.info("Production model loaded from MLflow registry.")
+
+        model_info = client.get_model_version_by_alias(
+            name="ChurnModel",
+            alias="production"
+        )
+        logger.info(f"Currently serving model version {model_info.version} with status: {model_info.status}")
+        
     except Exception as e:
         logger.warning(f"Model load failed: {str(e)}")
         model = None
