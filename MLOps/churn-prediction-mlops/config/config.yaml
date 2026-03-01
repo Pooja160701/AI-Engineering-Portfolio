@@ -1,0 +1,10 @@
+model:
+  random_state: 42
+  test_size: 0.2
+
+data:
+  raw_data_path: "data/raw.csv"
+  processed_data_path: "data/processed.csv"
+
+mlflow:
+  experiment_name: "churn_prediction"
