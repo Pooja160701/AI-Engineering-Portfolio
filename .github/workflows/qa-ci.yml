@@ -9,7 +9,7 @@ on:
       - 'QA-Engineering/**'
 
 jobs:
-  run-tests:
+  qa-tests:
     runs-on: ubuntu-latest
 
     defaults:
@@ -23,10 +23,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - run: |
+      - name: Install dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           playwright install --with-deps
 
-      - run: pytest -m smoke
-      - run: pytest -m api
+      - name: Run Smoke Tests
+        run: pytest -m smoke
+
+      - name: Run API Tests
+        run: pytest -m api
