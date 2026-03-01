@@ -6,3 +6,4 @@ allure-pytest
 python-dotenv
 jsonschema
 locust
+pytest-xdist
