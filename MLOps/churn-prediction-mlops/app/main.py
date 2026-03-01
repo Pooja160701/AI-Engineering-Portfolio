@@ -18,17 +18,18 @@ model = None  # global placeholder
 def load_model():
     global model
 
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+    mlflow.set_tracking_uri(f"sqlite:///{PROJECT_ROOT}/mlflow.db")
+
     try:
-        stage = os.getenv("MODEL_STAGE", "Production")
-
         model = mlflow.pyfunc.load_model(
-            model_uri=f"models:/ChurnModel/{stage}"
+            model_uri="models:/ChurnModel@production"
         )
-
-        logger.info(f"Model loaded from MLflow stage: {stage}")
-
+        logger.info("Production model loaded from MLflow registry.")
     except Exception as e:
-        logger.warning(f"No model found for stage: {stage}")
+        logger.warning(f"Model load failed: {str(e)}")
         model = None
 
 

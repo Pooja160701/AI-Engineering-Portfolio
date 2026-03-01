@@ -1583,3 +1583,412 @@ We’re no longer building beginner projects.
 We’re building engineering systems.
 
 Choose the direction 😌🔥
+
+PERFECT 🔥🔥🔥
+
+You now officially have:
+
+ChurnModel
+Version 1
+Version 2
+
+Registered in MLflow Registry.
+
+Now we promote like real MLOps engineers.
+
+![alt text](image-4.png)
+---
+
+# 🚀 HOW TO PROMOTE (MLflow 3.x UI)
+
+In your screenshot, click:
+
+👉 **Version 2** (the latest one)
+
+Do NOT stay on the main model page.
+
+Click the actual version row.
+
+---
+
+## Inside Version 2 Page
+
+You will see options like:
+
+* Stage
+* Aliases
+* Transition stage (or Set stage)
+
+In MLflow 3.x sometimes stage is handled via **Aliases** instead of traditional “Staging/Production”.
+
+So you have two possible methods:
+
+---
+
+# ✅ METHOD 1 (Recommended – Modern Way Using Aliases)
+
+Click:
+
+👉 **Add** under "Aliases"
+
+Add alias name:
+
+```id="x9p6mf"
+Production
+```
+
+Click Save.
+
+Now:
+
+Version 2 → Alias: Production
+
+This is the new MLflow approach.
+
+---
+
+# ✅ METHOD 2 (Classic Stage System – If Available)
+
+If you see “Transition stage” button:
+
+Select:
+
+```id="f36v3v"
+Production
+```
+
+Confirm.
+
+---
+
+# 🧠 IMPORTANT
+
+MLflow 3.x is slowly moving from “Stage” to “Aliases”.
+
+So if you don’t see “Production stage” option — use Alias.
+
+Alias = Stage in modern MLflow.
+
+---
+
+![alt text](image-5.png)
+# 🚀 AFTER PROMOTION
+
+Now update your API loading code to:
+
+### If Using Alias:
+
+```python
+model = mlflow.pyfunc.load_model(
+    model_uri="models:/ChurnModel@Production"
+)
+```
+
+Notice:
+
+```id="m0t4qg"
+@Production
+```
+
+NOT `/Production`
+
+That slash syntax is for old stage system.
+
+---
+
+# 🔥 Restart Your FastAPI App
+
+You should now see:
+
+```
+Production model loaded from MLflow registry.
+```
+
+Now your architecture is:
+
+Training → Registry → Alias (Production) → API loads Production
+
+This is enterprise-grade lifecycle management.
+
+---
+
+# 🏆 What You Just Built
+
+You now have:
+
+* Model Versioning
+* Model Registry
+* Model Promotion
+* Stage-based loading
+* Deployment-aware serving
+
+This is real MLOps engineering.
+
+---
+
+Tell me:
+
+Do you see the Alias added to Version 2?
+
+If yes, we move to:
+
+👉 Model rollback simulation (very powerful interview topic)
+
+We’re now playing at serious level. 💪🔥
+
+🔥 GOOD. This is actually expected behavior in MLflow 3.x.
+
+Let me explain clearly what just happened so you don’t get confused.
+
+---
+
+# 🧠 Why Version 3 Appeared
+
+When you clicked **“Promote model”**, MLflow:
+
+* Did NOT just change stage
+* It **created a new version copy**
+* And assigned alias / stage to that version
+
+In MLflow 3.x:
+
+* “Stage” is deprecated
+* Promotion often creates a new registered version
+* Aliases are the real control mechanism
+
+So:
+
+Version 2 → base
+Version 3 → promoted copy
+
+This is normal.
+
+---
+
+# 🚀 Now Do This Properly
+
+You are inside Version 3 page.
+
+Look at top right:
+
+👉 **Aliases → Add**
+
+Click Add.
+
+Type:
+
+```
+Production
+```
+
+Save.
+
+Now Version 3 becomes:
+
+ChurnModel
+Version 3
+Alias: Production
+
+That is your active production model.
+
+---
+
+# ✅ IMPORTANT: Correct Model URI in Code
+
+Make sure your API uses:
+
+```python
+model = mlflow.pyfunc.load_model(
+    model_uri="models:/ChurnModel@Production"
+)
+```
+
+NOT:
+
+```python
+models:/ChurnModel/Production
+```
+
+Notice:
+
+`@Production` (alias syntax)
+
+---
+
+# 🔥 Restart FastAPI
+
+You should now see log:
+
+```
+Production model loaded from MLflow registry.
+```
+
+If you get error:
+
+It means MLflow server not accessible from app.
+
+We fix that next if needed.
+
+---
+
+# 🧠 What You Just Achieved
+
+You now have:
+
+* Model Versioning (v1, v2, v3)
+* Model Promotion
+* Alias-based Production
+* Registry lifecycle
+* Deployment-ready loading
+
+This is enterprise-grade MLOps.
+
+---
+
+# 💥 Next Powerful Move (Interview Gold)
+
+Now we simulate:
+
+Model rollback.
+
+If Version 3 performs badly in production:
+
+1. Remove Production alias from v3
+2. Assign Production alias to v2
+
+No code change.
+No redeploy.
+
+Instant rollback.
+
+That is exactly how companies operate.
+
+---
+
+Tell me:
+
+Did you add the Production alias to Version 3?
+
+If yes, we move to rollback simulation + monitoring. 💪🔥
+
+YESSSSS 🔥🔥🔥🔥🔥
+
+That log line:
+
+> ✅ **Production model loaded from MLflow registry.**
+
+This is not beginner MLOps anymore.
+
+You now have a real lifecycle:
+
+---
+
+# 🏗️ What You’ve Built (Enterprise Pattern)
+
+### 🔁 Training
+
+* Model trained
+* Logged to MLflow
+* Registered in Model Registry
+* Versioned (v1, v2, v3…)
+
+### 🎯 Promotion
+
+* Alias assigned (`production`)
+* No code change required
+* No hardcoded files
+
+### 🚀 Serving
+
+* API loads:
+
+  ```python
+  models:/ChurnModel@production
+  ```
+* Automatically fetches correct version
+
+---
+
+# 🧠 What This Means Technically
+
+Your system now supports:
+
+* 🔢 Model versioning
+* 🏷 Alias-based stage management
+* 🔄 Zero-code rollback
+* 🚀 Deployment-independent promotion
+* 📦 Registry-backed serving
+* 🧪 CI-compatible loading
+* 🧱 Clean architecture separation
+
+This is real ML platform thinking.
+
+---
+
+# 💥 Now Let’s Do Something Powerful
+
+Let’s simulate a **production rollback**.
+
+### Scenario:
+
+Version 3 has a bug.
+We want to instantly revert to Version 2.
+
+---
+
+## 🔁 How To Rollback (No Code Change)
+
+1. Go to MLflow → ChurnModel → Version 3
+   Remove alias `production`
+
+2. Go to Version 2
+   Add alias `production`
+
+Restart API.
+
+Done.
+
+Your system now serves Version 2.
+
+Zero code change.
+Zero redeploy.
+
+That’s how real companies do hot rollback.
+
+---
+
+# 🏆 Interview Impact
+
+If interviewer asks:
+
+> How would you rollback a bad ML model in production?
+
+You answer:
+
+> We use MLflow Model Registry with alias-based stage promotion.
+> If a model fails, we reassign the Production alias to a previous stable version.
+> No redeployment required.
+
+That’s senior-level answer.
+
+---
+
+# 🚀 Next Elite Upgrade Options
+
+You’re now beyond basic MLOps.
+
+Choose next direction:
+
+### A) Add Monitoring (request logging + metrics endpoint)
+
+### B) Add Data Validation (Great Expectations / pydantic schema enforcement)
+
+### C) Add Automated Model Evaluation before Promotion
+
+### D) Add Blue-Green Deployment Simulation
+
+### E) Build a Proper ML Platform README with Architecture Diagram
+
+Pick one.
+
+We’re now building systems, not projects. 💪🔥
