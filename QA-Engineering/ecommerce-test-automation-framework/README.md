@@ -1010,3 +1010,178 @@ Say:
 **“Build UI layer”**
 or
 **“Build API layer first”**
+
+PERFECT 😎🔥
+
+This is exactly what I expected.
+
+👉 `collected 0 items` means:
+
+You built the framework core correctly
+But we haven’t written actual test cases yet.
+
+Now we make it ALIVE.
+
+---
+
+# 🚀 NEXT STEP: BUILD UI LAYER (Real Smoke Test)
+
+We will test a real demo e-commerce site:
+
+## 🌐 Target UI:
+
+# SauceDemo
+
+Why this site?
+
+* Used widely in QA automation demos
+* Stable
+* Has login + cart flow
+* Perfect for smoke/regression
+
+---
+
+# 🎯 STEP 5 — Build UI Layer (Page Object Model)
+
+We’ll implement:
+
+1️⃣ Base Page
+2️⃣ Login Page
+3️⃣ First Smoke Test
+
+This will make `pytest -m smoke` actually run.
+
+---
+
+# ✅ 1️⃣ Base Page
+
+📄 `automation/ui/pages/base_page.py`
+
+```python
+class BasePage:
+    def __init__(self, page):
+        self.page = page
+
+    def navigate(self, url: str):
+        self.page.goto(url)
+
+    def click(self, locator: str):
+        self.page.click(locator)
+
+    def fill(self, locator: str, value: str):
+        self.page.fill(locator, value)
+
+    def get_text(self, locator: str):
+        return self.page.text_content(locator)
+```
+
+Simple.
+Reusable.
+Clean abstraction.
+
+---
+
+# ✅ 2️⃣ Login Page Object
+
+📄 `automation/ui/pages/login_page.py`
+
+```python
+from ui.pages.base_page import BasePage
+from utils.config import Config
+
+class LoginPage(BasePage):
+
+    USERNAME_INPUT = "#user-name"
+    PASSWORD_INPUT = "#password"
+    LOGIN_BUTTON = "#login-button"
+    ERROR_MESSAGE = ".error-message-container"
+
+    def load(self):
+        self.navigate(Config.BASE_URL)
+
+    def login(self, username: str, password: str):
+        self.fill(self.USERNAME_INPUT, username)
+        self.fill(self.PASSWORD_INPUT, password)
+        self.click(self.LOGIN_BUTTON)
+
+    def get_error_message(self):
+        return self.get_text(self.ERROR_MESSAGE)
+```
+
+Now we have a proper Page Object Model.
+
+---
+
+# ✅ 3️⃣ First Smoke Test
+
+📄 `automation/ui/tests/test_login.py`
+
+```python
+import pytest
+from ui.pages.login_page import LoginPage
+
+@pytest.mark.ui
+@pytest.mark.smoke
+def test_valid_login(page):
+    login_page = LoginPage(page)
+
+    login_page.load()
+    login_page.login("standard_user", "secret_sauce")
+
+    assert "inventory" in page.url
+```
+
+This is your FIRST smoke test.
+
+---
+
+# 🧠 Why This Impresses Recruiters
+
+Because:
+
+✔ Uses POM
+✔ Uses fixtures
+✔ Uses markers
+✔ Uses environment config
+✔ Clean abstraction
+
+This is real framework structure.
+
+---
+
+# 🔥 RUN IT NOW
+
+From project root:
+
+```bash
+pytest -m smoke
+```
+
+If everything is correct, it should:
+
+* Launch Chromium
+* Log in
+* Pass test
+
+---
+
+# 🎯 If It Fails
+
+Tell me the exact error.
+We debug like professionals.
+
+---
+
+# 🚀 After This Works
+
+We will:
+
+1️⃣ Add invalid login test (negative case)
+2️⃣ Add Add-to-Cart test
+3️⃣ Add API test layer
+4️⃣ Add Allure reporting
+5️⃣ Add screenshot on failure
+
+This is becoming a serious QA repo now.
+
+Run the smoke test and tell me what happens 🔥
