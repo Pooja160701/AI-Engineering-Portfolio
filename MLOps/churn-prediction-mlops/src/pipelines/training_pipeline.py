@@ -46,7 +46,12 @@ def run_training():
         logger.info(f"Model Accuracy: {accuracy}")
 
         mlflow.log_metric("accuracy", accuracy)
-        mlflow.sklearn.log_model(model, "model")
+
+        mlflow.sklearn.log_model(
+            model,
+            artifact_path="model",
+            registered_model_name="ChurnModel"
+        )
 
         os.makedirs("artifacts", exist_ok=True)
         joblib.dump(model, "artifacts/model.pkl")

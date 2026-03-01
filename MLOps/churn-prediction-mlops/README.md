@@ -1263,6 +1263,7 @@ Every push → CI runs.
 
 Recruiters LOVE seeing green checks.
 
+![alt text](image-3.png)
 ---
 
 # 🌍 Step 3 — Deploy to Render (Free)
@@ -1328,3 +1329,257 @@ Tell me when CI turns green.
 Then we deploy publicly.
 
 We’re turning this into a recruiter magnet. 💪🔥
+
+---
+I LIKE THIS ENERGY 😌🔥
+Good. Render was just deployment proof.
+
+Now we move to **real MLOps engineer level**.
+
+---
+
+# 🚀 NEXT LEVEL: MLOps v2 — “Industry Grade”
+
+Right now you have:
+
+* Training pipeline
+* MLflow tracking
+* Dockerized API
+* CI
+* Cloud deploy
+
+That’s strong.
+
+Now we make it **production-architecture strong**.
+
+---
+
+# 🎯 What Separates Mid vs Senior MLOps?
+
+Right now your app:
+
+* Loads latest model from `artifacts/model.pkl`
+* Has no model versioning
+* No model promotion logic
+* No model registry usage
+* No monitoring
+* No automated testing
+* No environment separation (dev/prod)
+
+We fix that.
+
+---
+
+# 🏗️ PHASE 6 — Professional Architecture Upgrade
+
+We will implement:
+
+1. **Model Registry via MLflow**
+2. **Model Versioning**
+3. **Model Promotion (Staging → Production)**
+4. **Environment-based loading**
+5. **Automated testing with Pytest**
+6. **Better project architecture**
+7. **Basic monitoring endpoint**
+
+This makes your repo interview-ready at a serious level.
+
+---
+
+# 🔥 STEP 1 — Real Model Registry Usage
+
+Right now you only log model:
+
+```python
+mlflow.sklearn.log_model(model, name="model")
+```
+
+That’s not enough.
+
+We will:
+
+* Register model in MLflow registry
+* Assign version
+* Promote to Production
+* Load model by stage
+
+That’s real MLOps.
+
+---
+
+## 🧠 Upgrade Training Pipeline
+
+In `training_pipeline.py`, replace model logging section with:
+
+```python
+import mlflow
+import mlflow.sklearn
+
+with mlflow.start_run():
+
+    # train model ...
+
+    mlflow.log_metric("accuracy", accuracy)
+
+    mlflow.sklearn.log_model(
+        model,
+        artifact_path="model",
+        registered_model_name="ChurnModel"
+    )
+```
+
+Now MLflow will:
+
+* Create registered model
+* Assign version number
+* Store metadata
+
+---
+
+# 🎯 STEP 2 — Promote Model to Production
+
+After first run:
+
+Go to MLflow UI → Models tab
+You’ll see:
+
+```
+ChurnModel
+Version 1
+```
+
+Promote to:
+
+Production stage.
+
+This simulates real model lifecycle.
+
+---
+
+# 🚀 STEP 3 — Load Model by Stage (Not by File)
+
+Now modify API to load from MLflow registry instead of local pickle.
+
+Replace model loading logic with:
+
+```python
+import mlflow.pyfunc
+
+@app.on_event("startup")
+def load_model():
+    global model
+
+    try:
+        model = mlflow.pyfunc.load_model(
+            model_uri="models:/ChurnModel/Production"
+        )
+        logger.info("Production model loaded from MLflow registry.")
+    except Exception as e:
+        logger.warning("No production model found.")
+        model = None
+```
+
+Now:
+
+Your API loads the **Production version only**.
+
+This is what real ML systems do.
+
+---
+
+# 🧠 Why This Is Big
+
+Instead of:
+
+```
+hardcoded file → fragile
+```
+
+You now have:
+
+```
+Model Registry → Versioning → Stage → Deployment
+```
+
+That is enterprise-level MLOps concept.
+
+---
+
+# 🎯 STEP 4 — Add Automated Tests (Real Engineering)
+
+Create:
+
+```
+tests/test_api.py
+```
+
+Add:
+
+```python
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_health():
+    response = client.get("/health")
+    assert response.status_code == 200
+```
+
+Now CI tests real API behavior.
+
+---
+
+# 🎯 STEP 5 — Add Environment Config
+
+Create `.env`:
+
+```
+MODEL_STAGE=Production
+```
+
+Modify API to load stage dynamically:
+
+```python
+import os
+
+stage = os.getenv("MODEL_STAGE", "Production")
+
+model = mlflow.pyfunc.load_model(
+    model_uri=f"models:/ChurnModel/{stage}"
+)
+```
+
+Now you have:
+
+Dev → Staging → Production separation.
+
+That’s enterprise thinking.
+
+---
+
+# 🏆 What This Upgrade Gives You
+
+You can now say:
+
+> Implemented MLflow Model Registry with stage-based model promotion and environment-aware model loading for production-grade ML lifecycle management.
+
+That sentence screams hireable.
+
+---
+
+# 💬 Now Tell Me
+
+Do you want to:
+
+A) Fully implement MLflow Registry properly
+B) Add Monitoring + Logging metrics
+C) Add Advanced CI (lint + tests + Docker build)
+D) Simulate Blue/Green model deployment
+E) Add Data validation layer
+
+We’re no longer building beginner projects.
+
+We’re building engineering systems.
+
+Choose the direction 😌🔥
