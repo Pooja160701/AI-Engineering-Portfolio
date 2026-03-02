@@ -30,7 +30,7 @@ Python | MLflow (Tracking & Registry) | FastAPI | Scikit-learn | Uvicorn | Logur
 
 ---
 
-## 2️⃣ Enterprise-Grade QA Automation Framework – Quality Engineering System
+## 2] Enterprise-Grade QA Automation Framework – Quality Engineering System
 
 ***Tech Stack:***
 
