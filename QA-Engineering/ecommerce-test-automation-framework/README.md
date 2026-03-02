@@ -238,7 +238,7 @@ From project root:
 pytest -m smoke
 ```
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 If everything is correct, it should:
 
@@ -256,7 +256,7 @@ Now run:
 pytest -m regression
 ```
 
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 
 ---
 
@@ -270,7 +270,7 @@ Now run:
 pytest -m regression
 ```
 
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 
 ---
 
@@ -306,7 +306,7 @@ Run:
 pytest -m api
 ```
 
-![alt text](image-3.png)
+![alt text](images/image-3.png)
 
 ---
 
@@ -318,7 +318,7 @@ Run:
 pytest -m api
 ```
 
-![alt text](image-4.png)
+![alt text](images/image-4.png)
 
 ---
 
@@ -336,16 +336,16 @@ Then open browser:
 http://localhost:8089
 ```
 
-![alt text](image-5.png)
+![alt text](images/image-5.png)
 
 Simulate:
 
 * 50 users
 * Spawn rate 5
 
-![alt text](image-6.png)
+![alt text](images/image-6.png)
 
-![alt text](image-7.png)
+![alt text](images/image-7.png)
 
 * Users: **50**
 * RPS: **25.8**
@@ -407,7 +407,7 @@ Now go to:
 
 GitHub → Actions tab
 
-![alt text](image-8.png)
+![alt text](images/image-8.png)
 
 ---
 
