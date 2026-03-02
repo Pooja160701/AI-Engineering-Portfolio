@@ -92,8 +92,6 @@ flowchart LR
     REPORTS --> ARTIFACTS[CI Artifacts]
 ```
 
-GitHub automatically renders this in README.
-
 ---
 
 # 🧱 Layered Architecture
