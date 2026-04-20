@@ -1,0 +1,21 @@
+{
+  "silver_layer": {
+    "source_table": "uber.bronze_rides",
+    "target_view": "uber.silver_obt_dynamic",
+    "columns": [
+      "ride_id",
+      "passenger_id",
+      "driver_id",
+      "vehicle_id",
+      "distance_miles",
+      "duration_minutes",
+      "total_fare",
+      "tip_amount",
+      "surge_multiplier"
+    ],
+    "derived_columns": {
+      "net_fare": "total_fare - tip_amount",
+      "ride_value_category": "CASE WHEN total_fare > 100 THEN 'High' WHEN total_fare > 50 THEN 'Medium' ELSE 'Low' END"
+    }
+  }
+}

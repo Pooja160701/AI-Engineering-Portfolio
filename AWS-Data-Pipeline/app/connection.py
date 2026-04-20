@@ -1,32 +1,29 @@
-import random
-import uuid
+import boto3
 import json
-from datetime import datetime, timedelta
-from faker import Faker
-import logging
-from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from .env file
 import os
+from dotenv import load_dotenv
 
-# Pulling Data Generator Function
-from app.data import generate_uber_ride_confirmation
+load_dotenv()
 
-CONNECTION_STRING = os.getenv("CONNECTION_STRING")
-EVENT_HUBNAME = os.getenv("EVENT_HUBNAME")
+STREAM_NAME = os.getenv("KINESIS_STREAM_NAME", "uber-stream")
 
-def send_to_event_hub(ride_data=None):
-    print("Mock send:", ride_data)
-    return "Mock success"
+kinesis_client = boto3.client(
+    "kinesis",
+    region_name="us-east-1",
+)
 
-if __name__ == "__main__":
-    
-    print("=" * 80)
-    print("SINGLE RIDE CONFIRMATION")
-    print("=" * 80)
-    ride = generate_uber_ride_confirmation()
-    print(json.dumps(ride, indent=2))
 
-    print("\n" + "=" * 80)
-    print("SENDING SINGLE RIDE TO EVENT HUB")
-    result = send_to_event_hub(ride)
-    print(f"Single ride sent to Event Hub: {result}")
+def send_to_kinesis(ride_data=None):
+    try:
+        response = kinesis_client.put_record(
+            StreamName=STREAM_NAME,
+            Data=json.dumps(ride_data),
+            PartitionKey=ride_data["ride_id"]
+        )
+
+        print("Sent to Kinesis:", response["SequenceNumber"])
+        return "Sent to Kinesis"
+
+    except Exception as e:
+        print("Error:", str(e))
+        return False
