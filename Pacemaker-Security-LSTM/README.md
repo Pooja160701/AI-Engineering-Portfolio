@@ -327,3 +327,15 @@ The system processes pacemaker signals through the following pipeline:
 6️⃣ Results are displayed in the real-time monitoring dashboard
 
 ---
+
+## Results
+
+[!alt image](results/image.png)
+
+[!alt image](results/image-1.png)
+
+[!alt image](results/image-2.png)
+
+[!alt image](results/image-3.png)
+
+---

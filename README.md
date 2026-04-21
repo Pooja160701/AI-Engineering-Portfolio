@@ -59,6 +59,30 @@ Python | Playwright | Pytest | Page Object Model | Requests | JSON Schema Valida
 
 ---
 
+## 3] Real-Time AI Healthcare Monitoring System – Pacemaker Security (LSTM + Streaming)
+
+***Tech Stack:***
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-LSTM-orange)
+![Kafka](https://img.shields.io/badge/Kafka-Streaming-black)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-green)
+
+Python | TensorFlow/Keras | LSTM | Kafka | Streamlit | Scikit-learn | Docker | GitHub Actions | Real-Time Inference | AI Monitoring System
+
+***What This Project Demonstrates:***
+
+* Built a **real-time AI healthcare monitoring system** for detecting pacemaker anomalies using LSTM networks
+* Designed a **streaming data pipeline (Kafka-style)** for continuous heart signal ingestion
+* Implemented **deep learning sequence modeling** to capture temporal cardiac patterns
+* Developed a **real-time inference engine** for live anomaly detection
+* Created an **interactive monitoring dashboard** with Streamlit for visualization and alerts
+* Simulated **production-grade event-driven architecture** for healthcare systems
+* Integrated **model evaluation (confusion matrix, precision/recall)** for clinical reliability
+* Demonstrated **AI + IoT + streaming system design** for critical healthcare use cases
+
 ## 📬 Connect With Me
 
 ***LinkedIn***: (https://www.linkedin.com/in/poojaajithan)  
