@@ -217,36 +217,39 @@ Fare per Mile = DIVIDE(SUM('table'[total_fare]), SUM('table'[distance_miles]))
 ## 🧠 Full Pipeline 
 
 ```text
-User
-  ↓
-FastAPI (Data Generator)
-  ↓
+User (Ride Booking Simulation)
+        │
+        ▼
+FastAPI (Event Generator)
+        │
+        ▼
 Amazon Kinesis (Streaming Layer)
-  ↓
-AWS Lambda (Ingestion / Consumer)
-  ↓
-Amazon S3 (Bronze Layer - Raw Data)
-  ↓
-AWS Glue Data Catalog (Schema Management)
-  ↓
-Amazon Athena (SQL Engine)
-      ↓
-   Silver Layer (Cleaned OBT)
-      ↓
-   Gold Layer (Star Schema + SCD Type 2)
-  ↓
-Power BI Dashboard (Analytics Layer)
+        │
+        ▼
+AWS Lambda (Consumer / Ingestion)
+        │
+        ▼
+Amazon S3 (Bronze - Raw Data Lake)
+        │
+        ▼
+AWS Glue Data Catalog
+        │
+        ▼
+Amazon Athena (SQL Transformations)
+        │
+        ├──────────────► Silver Layer (Cleaned OBT)
+        │
+        └──────────────► Gold Layer (Star Schema + SCD Type 2)
+                                │
+                                ▼
+                        Power BI Dashboard
 
------------------------------------------
+--------------------------------------------
 
-Automation Layer:
-EventBridge Scheduler
-      ↓
-Lambda (Orchestrator)
-      ↓
-Athena Queries (Refresh Silver + Gold)
+Orchestration Layer:
+EventBridge Scheduler → Lambda → Athena Queries
 
------------------------------------------
+--------------------------------------------
 
 Monitoring Layer:
 CloudWatch Logs + Metrics

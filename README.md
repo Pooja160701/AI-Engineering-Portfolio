@@ -83,6 +83,37 @@ Python | TensorFlow/Keras | LSTM | Kafka | Streamlit | Scikit-learn | Docker | G
 * Integrated **model evaluation (confusion matrix, precision/recall)** for clinical reliability
 * Demonstrated **AI + IoT + streaming system design** for critical healthcare use cases
 
+📌 Folder: `Pacemaker-Security-LSTM`
+
+---
+
+## 4] Real-Time Data Engineering Pipeline – Uber Analytics (AWS Streaming)
+
+***Tech Stack:***
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![AWS](https://img.shields.io/badge/AWS-Kinesis_Lambda_S3-orange)
+![Athena](https://img.shields.io/badge/Athena-SQL-green)
+![PowerBI](https://img.shields.io/badge/PowerBI-Dashboard-yellow)
+![Docker](https://img.shields.io/badge/Docker-Optional-blue)
+![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-green)
+
+Python | FastAPI | Amazon Kinesis | AWS Lambda | Amazon S3 | AWS Glue | Amazon Athena | Power BI | EventBridge | CloudWatch | Star Schema | SCD Type 2
+
+***What This Project Demonstrates:***
+
+* Built an **end-to-end real-time data pipeline** simulating Uber ride booking systems
+* Designed a **streaming ingestion layer using Amazon Kinesis** for scalable event processing
+* Implemented **serverless data processing with AWS Lambda** for transformation and ingestion
+* Developed a **modern data lake architecture (S3 Bronze → Silver → Gold)**
+* Created **analytical data models (Star Schema)** for BI reporting
+* Implemented **Slowly Changing Dimensions (SCD Type 2)** for historical tracking
+* Automated pipeline execution using **EventBridge + Lambda orchestration**
+* Built **business intelligence dashboards (Power BI)** for insights
+* Enabled **observability using CloudWatch logs & metrics**
+
+---
+
 ## 📬 Connect With Me
 
 ***LinkedIn***: (https://www.linkedin.com/in/poojaajithan)  
