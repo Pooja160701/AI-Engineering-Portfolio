@@ -4,7 +4,7 @@ This repository showcases production-grade AI systems built with scalable archit
 
 ## 📂 Projects
 
-### 1] Production-Level MLOps with Shadow Deployment – MLOps Pipeline
+## 1] Production-Level MLOps with Shadow Deployment – MLOps Pipeline
 
 ***Tech Stack:***  
 
