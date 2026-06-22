@@ -2,48 +2,7 @@
 
 # 📊 High-Level Architecture Diagram
 
-```
-                        ┌─────────────────────────┐
-                        │        Client           │
-                        │  (Postman / Frontend)   │
-                        └────────────┬────────────┘
-                                     │
-                                     ▼
-                        ┌─────────────────────────┐
-                        │      FastAPI Service    │
-                        │  (app/main.py)          │
-                        └────────────┬────────────┘
-                                     │
-          ┌──────────────────────────┼──────────────────────────┐
-          ▼                          ▼                          ▼
-┌────────────────┐        ┌────────────────┐        ┌────────────────────┐
-│ Production     │        │ Shadow Model   │        │ Metrics Tracker     │
-│ Model (Alias)  │        │ Latest Version │        │ Counter + Logging   │
-│ ChurnModel@prod│        │ ChurnModel/vN  │        │ Disagreements       │
-└────────────────┘        └────────────────┘        └────────────────────┘
-          │                          │                          │
-          └──────────────┬───────────┘                          │
-                         ▼                                      ▼
-                  ┌──────────────────┐                  ┌──────────────────┐
-                  │ MLflow Registry  │                  │ /metrics Endpoint│
-                  │ Versioned Models │                  │ Live Monitoring  │
-                  └──────────────────┘                  └──────────────────┘
-                         ▲
-                         │
-                ┌──────────────────┐
-                │ Training Pipeline│
-                │ train.py         │
-                │ RandomForest     │
-                │ Auto-Register    │
-                │ Auto-Compare     │
-                └──────────────────┘
-                         ▲
-                         │
-                ┌──────────────────┐
-                │ Raw Dataset      │
-                │ data/raw.csv     │
-                └──────────────────┘
-```
+![alt text](images/arch.png)
 
 - Built a production-grade MLOps system using MLflow Model Registry for version control.
 
@@ -211,7 +170,7 @@ Test:
 }
 ```
 
-> Developed and deployed a container-ready FastAPI service serving a trained ML model with experiment tracking using MLflow.
+Developed and deployed a container-ready FastAPI service serving a trained ML model with experiment tracking using MLflow.
 
 ---
 
@@ -233,8 +192,6 @@ This prevents Docker from copying:
 3. Auto test on push
 
 ![alt text](images/image-3.png)
-
----
 
 Now MLflow will:
 
@@ -300,9 +257,11 @@ This is the new MLflow approach.
 
 Restart API.
 
-> We use MLflow Model Registry with alias-based stage promotion.
-> If a model fails, we reassign the Production alias to a previous stable version.
-> No redeployment required.
+- I used MLflow Model Registry with alias-based stage promotion.
+
+- If a model fails, we reassign the Production alias to a previous stable version.
+
+- No redeployment required.
 
 This proves your service knows what it’s serving.
 
@@ -386,19 +345,19 @@ Currently serving model version 2
 
 ![alt text](images/image-8.png)
 
-> Use MLflow Model Registry with alias-based routing.
+- Use MLflow Model Registry with alias-based routing.
 
-> Production traffic is mapped to a model alias.
+- Production traffic is mapped to a model alias.
 
-> If a model underperforms, we reassign the alias to a previous stable version.
+- If a model underperforms, we reassign the alias to a previous stable version.
 
-> No redeployment required.
+- No redeployment required.
 
 ---
 
 # Live counters
 
-![alt text](image-9.png)
+![alt text](images/image-9.png)
 
 ## 🧠 Why This Matters
 
@@ -426,7 +385,7 @@ We automatically check:
 
 That is production governance.
 
-> I implemented automated model governance using MLflow Model Registry where new model versions are evaluated against current production accuracy before alias-based promotion. This prevents accidental performance regressions in live environments.
+- I implemented automated model governance using MLflow Model Registry where new model versions are evaluated against current production accuracy before alias-based promotion. This prevents accidental performance regressions in live environments.
 
 ---
 

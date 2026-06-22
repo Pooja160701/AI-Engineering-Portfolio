@@ -56,41 +56,7 @@ The framework follows a layered, scalable architecture integrating:
 
 ## 🔹 High-Level Flow
 
-```mermaid
-flowchart LR
-
-    Dev[Developer Push Code] --> GH[GitHub Repository]
-    GH --> CI[GitHub Actions CI]
-
-    subgraph QA Framework
-        UI[UI Tests - Playwright]
-        API[API Tests - Requests]
-        PERF[Performance Tests - Locust]
-        POM[Page Object Model]
-        CLIENT[API Client Layer]
-        CONFIG[Config & Logger]
-    end
-
-    CI --> UI
-    CI --> API
-    CI --> PERF
-
-    UI --> POM
-    API --> CLIENT
-
-    POM --> CONFIG
-    CLIENT --> CONFIG
-
-    UI --> TARGET1[SauceDemo UI]
-    API --> TARGET2[FakeStore API]
-    PERF --> TARGET2
-
-    UI --> REPORTS[Allure Reports]
-    API --> REPORTS
-    PERF --> METRICS[Performance Metrics]
-
-    REPORTS --> ARTIFACTS[CI Artifacts]
-```
+![alt text](images/arch.png)
 
 ---
 
@@ -120,30 +86,6 @@ flowchart LR
 * Docker container execution
 * Artifact storage
 * Environment configuration (.env)
-
----
-
-# 📦 Folder-Level Architecture
-
-Add this diagram too (simpler view):
-
-```mermaid
-flowchart TD
-
-    ROOT[AI-Engineering-Portfolio]
-    QA[QA-Engineering]
-    FRAME[ecommerce-test-automation-framework]
-
-    ROOT --> QA
-    QA --> FRAME
-
-    FRAME --> UI[automation/ui]
-    FRAME --> API[automation/api]
-    FRAME --> PERF[automation/performance]
-    FRAME --> UTILS[automation/utils]
-    FRAME --> CI[.github/workflows]
-    FRAME --> DOCKER[Dockerfile]
-```
 
 ---
 
@@ -401,7 +343,7 @@ System remains stable under moderate concurrent load, but latency spikes occur a
 
 ---
 
-# 🚀  Add GitHub Actions (Auto Run on Push)
+# 🚀  GitHub Actions (Auto Run on Push)
 
 Now go to:
 
@@ -462,7 +404,7 @@ Now every pipeline run:
 
 ---
 
-# ⚡ Add Parallel Execution
+# ⚡ Parallel Execution
 
 Install:
 

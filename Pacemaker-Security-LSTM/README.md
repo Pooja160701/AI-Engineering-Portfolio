@@ -33,23 +33,26 @@ The system combines **deep learning, data streaming, and real-time visualization
 
 ---
 
-# 🏗️ System Architecture
+# 🏗️ Architecture Diagram
 
-```
-Pacemaker Signal Generator
-        │
-        ▼
-Data Stream (Kafka Simulation)
-        │
-        ▼
-LSTM Deep Learning Model
-        │
-        ▼
-Anomaly Detection Engine
-        │
-        ▼
-Real-Time Monitoring Dashboard
-```
+## System Architecture
+
+![alt text](results/arch.png)
+
+---
+
+# System Workflow
+
+The system processes pacemaker signals through the following pipeline:
+
+1️⃣ Pacemaker device generates heart signals  
+2️⃣ Signals are streamed through a data pipeline  
+3️⃣ LSTM model analyzes the signal patterns  
+4️⃣ Abnormal heart rhythms are detected  
+5️⃣ Alerts are generated for anomalies  
+6️⃣ Results are displayed in the real-time monitoring dashboard
+
+---
 
 ![Dashboard](results/image.png)
 
@@ -272,70 +275,5 @@ Cardiac conditions include:
 2. Ventricular fibrillation
 3. Atrial fibrillation
 4. AV block
-
----
-
-# 🏗️ Architecture Diagram
-
-Add this section **after Project Overview** in your README.
-
-## System Architecture
-
-```
-                Pacemaker Signals
-                        │
-                        ▼
-              Data Generation Layer
-         (Simulated Pacemaker Sensor)
-                        │
-                        ▼
-                Streaming Pipeline
-                  (Kafka Producer)
-                        │
-                        ▼
-                  Kafka Topic
-                        │
-                        ▼
-                Kafka Consumer
-                        │
-                        ▼
-              LSTM Deep Learning Model
-                        │
-                        ▼
-              Anomaly Detection Engine
-                        │
-                        ▼
-              Real-Time Monitoring
-               Streamlit Dashboard
-                        │
-                        ▼
-                Alert System
-           (Pacemaker anomaly detected)
-```
-
----
-
-# System Workflow
-
-The system processes pacemaker signals through the following pipeline:
-
-1️⃣ Pacemaker device generates heart signals  
-2️⃣ Signals are streamed through a data pipeline  
-3️⃣ LSTM model analyzes the signal patterns  
-4️⃣ Abnormal heart rhythms are detected  
-5️⃣ Alerts are generated for anomalies  
-6️⃣ Results are displayed in the real-time monitoring dashboard
-
----
-
-## Results
-
-[!alt image](results/image.png)
-
-[!alt image](results/image-1.png)
-
-[!alt image](results/image-2.png)
-
-[!alt image](results/image-3.png)
 
 ---
